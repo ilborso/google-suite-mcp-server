@@ -1,0 +1,45 @@
+{
+  "title": "Google Suite MCP Server Configuration",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "apifyToken": {
+      "title": "Apify API Token",
+      "type": "string",
+      "description": "Your personal Apify API token. If omitted, the server will read from the APIFY_TOKEN environment variable.",
+      "editor": "textfield",
+      "isSecret": true
+    },
+    "transport": {
+      "title": "MCP Transport Protocol",
+      "type": "string",
+      "description": "Transport protocol for the MCP server. Use 'stdio' for CLI/desktop agents (Claude Desktop, Cursor) or 'sse' / 'streamable-http' for hosted web services.",
+      "editor": "select",
+      "default": "stdio",
+      "enum": [
+        "stdio",
+        "sse",
+        "streamable-http"
+      ],
+      "enumTitles": [
+        "Standard I/O (stdio - Default for Claude Desktop & Cursor)",
+        "Server-Sent Events (SSE - HTTP)",
+        "Streamable HTTP (Modern MCP HTTP)"
+      ]
+    },
+    "port": {
+      "title": "Server Port",
+      "type": "integer",
+      "description": "Port to bind to when running in SSE or HTTP transport modes.",
+      "editor": "number",
+      "default": 8080
+    },
+    "host": {
+      "title": "Server Host",
+      "type": "string",
+      "description": "Host interface to bind to when running in SSE or HTTP transport modes.",
+      "editor": "textfield",
+      "default": "0.0.0.0"
+    }
+  }
+}
