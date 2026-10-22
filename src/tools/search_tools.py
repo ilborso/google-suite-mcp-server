@@ -1,8 +1,9 @@
-"""Search Tools for Google Suite MCP Server.
+"""Search and News Tools for Google Suite MCP Server.
 
 Wraps:
 - ilborso/google-search-ai-mode
 - ilborso/google-search-fast-complete-result
+- ilborso/ai-news-content-crawler
 """
 
 from __future__ import annotations
@@ -116,6 +117,56 @@ def register_search_tools(mcp: Any) -> None:
 
         result = await run_actor_with_timeout(
             actor_id="ilborso/google-search-fast-complete-result",
+            run_input=run_input,
+            timeout_secs=TIMEOUT_SCRAPING,
+            max_items=max_results,
+        )
+        return json.dumps(result, ensure_ascii=False, indent=2)
+
+    @mcp.tool()
+    async def google_news_content_crawler(
+        search_query: str | None = None,
+        topic: str = "DO_NOT_USE_TOPIC",
+        language_region: str = "IT:it",
+        days_back: int = 3,
+        max_sites: int = 5,
+        max_results: int = 5,
+    ) -> str:
+        """Extract clean, full-text news articles and content from Google News without paywalls or subscriptions.
+
+        Powered by the Actor 'ilborso/ai-news-content-crawler'.
+        Retrieves real-time plain text news articles to keep AI agents updated with the latest events.
+        Provide either 'search_query' (keywords) or a predefined 'topic'.
+
+        Args:
+            search_query: Search keywords or query for Google News (e.g. 'Intelligenza Artificiale', 'Nvidia', 'SpaceX').
+            topic: Predefined Google News topic: 'WORLD', 'NATION', 'BUSINESS', 'TECHNOLOGY', 'ENTERTAINMENT', 'SPORTS', 'SCIENCE', 'HEALTH', or 'DO_NOT_USE_TOPIC'. Default is 'DO_NOT_USE_TOPIC'.
+            language_region: Country/language code pair (e.g. 'IT:it', 'US:en', 'GB:en', 'DE:de', 'FR:fr'). Default is 'IT:it'.
+            days_back: Number of days back to search (e.g. 1 to 7). Default is 3 for recent breaking news.
+            max_sites: Maximum number of unique news sites to crawl. Default is 5 for low latency.
+            max_results: Maximum articles to return in the response. Default is 5.
+
+        Returns:
+            JSON formatted string containing article titles, publishers, URLs, publication dates, and clean extracted article texts.
+        """
+        run_input: dict[str, Any] = {
+            "languageAndRegion": [language_region] if isinstance(language_region, str) else language_region,
+            "daysBack": days_back,
+            "maxSites": max_sites,
+            "maxConcurrency": 10,
+            "decodeInterval": 1,
+        }
+        if search_query:
+            run_input["searchQuery"] = search_query
+            run_input["topic"] = "DO_NOT_USE_TOPIC"
+        elif topic and topic != "DO_NOT_USE_TOPIC":
+            run_input["topic"] = topic
+        else:
+            # Default to TECHNOLOGY topic if neither is provided
+            run_input["topic"] = "TECHNOLOGY"
+
+        result = await run_actor_with_timeout(
+            actor_id="ilborso/ai-news-content-crawler",
             run_input=run_input,
             timeout_secs=TIMEOUT_SCRAPING,
             max_items=max_results,

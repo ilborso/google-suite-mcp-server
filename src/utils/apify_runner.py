@@ -307,6 +307,20 @@ def trim_gemini_flash_lite(item: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def trim_ai_news_content(item: dict[str, Any]) -> dict[str, Any]:
+    """Trim output from ilborso/ai-news-content-crawler."""
+    content = item.get("text") or item.get("snippet")
+    return {
+        "title": item.get("title"),
+        "source": item.get("domain") or item.get("source"),
+        "url": item.get("url"),
+        "date": item.get("published"),
+        "snippet": item.get("snippet"),
+        "topic": item.get("topic") if item.get("topic") != "DO_NOT_USE_TOPIC" else None,
+        "text": truncate_text(content, max_len=1200) if content else None,
+    }
+
+
 def generic_trimmer(item: dict[str, Any]) -> dict[str, Any]:
     """Fallback trimmer for unmapped schemas."""
     cleaned = {}
@@ -321,6 +335,7 @@ def generic_trimmer(item: dict[str, Any]) -> dict[str, Any]:
 TRIMMER_MAP: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "ilborso/google-search-ai-mode": trim_google_search_ai,
     "ilborso/google-search-fast-complete-result": trim_google_search_serp,
+    "ilborso/ai-news-content-crawler": trim_ai_news_content,
     "ilborso/google-maps-fast-scraper": trim_google_maps,
     "ilborso/google-flights-api": trim_google_flights,
     "ilborso/google-shopping-now": trim_google_shopping,
@@ -333,6 +348,22 @@ TRIMMER_MAP: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
 # -----------------------------------------------------------------------------
 # Core Asynchronous Execution Engine
 # -----------------------------------------------------------------------------
+
+
+def _get_obj_field(obj: Any, *keys: str) -> Any:
+    """Safely retrieve a field from either a dict or a Pydantic/dataclass object."""
+    if obj is None:
+        return None
+    if isinstance(obj, dict):
+        for k in keys:
+            if k in obj and obj[k] is not None:
+                return obj[k]
+    for k in keys:
+        if hasattr(obj, k):
+            val = getattr(obj, k)
+            if val is not None:
+                return val
+    return None
 
 
 async def run_actor_with_timeout(
@@ -378,8 +409,8 @@ async def run_actor_with_timeout(
         actor_client = client.actor(actor_id)
         started_run = await actor_client.start(run_input=clean_input)
 
-        run_id = started_run["id"]
-        run_url = f"https://console.apify.com/view/runs/{run_id}"
+        run_id = _get_obj_field(started_run, "id")
+        run_url = f"https://console.apify.com/view/runs/{run_id}" if run_id else None
         logger.info(f"Actor '{actor_id}' run started: {run_id} -> {run_url}")
 
         # Wait for completion within the strict low-latency deadline
@@ -411,7 +442,7 @@ async def run_actor_with_timeout(
                 "message": f"Actor run is currently in progress. Track live status at {run_url}",
             }
 
-        run_status = finished_run.get("status")
+        run_status = _get_obj_field(finished_run, "status")
         logger.info(f"Actor '{actor_id}' run {run_id} finished with status: {run_status}")
 
         if run_status != "SUCCEEDED":
@@ -427,7 +458,7 @@ async def run_actor_with_timeout(
             }
 
         # Fetch and trim dataset records
-        dataset_id = finished_run.get("defaultDatasetId")
+        dataset_id = _get_obj_field(finished_run, "default_dataset_id", "defaultDatasetId")
         if not dataset_id:
             return {
                 "status": "SUCCEEDED",

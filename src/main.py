@@ -37,9 +37,10 @@ def create_mcp_server() -> FastMCP:
     server = FastMCP(
         "google-suite-mcp-server",
         instructions=(
-            "Google Suite MCP Server exposing 8 specialized Google scrapers, intelligence tools, "
-            "and Gemini Flash Lite developed by ilborso. Designed for high reliability, low-latency "
-            "timeouts (45s scraping, 25s AI/trends), and optimized LLM context window payloads."
+            "Google Suite MCP Server exposing 9 specialized Google scrapers, intelligence tools, "
+            "Google News content extractor, and Gemini Flash Lite developed by ilborso. "
+            "Designed for high reliability, low-latency timeouts (45s scraping, 25s AI/trends), "
+            "and optimized LLM context window payloads."
         ),
     )
     register_all_tools(server)

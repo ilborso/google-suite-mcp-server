@@ -2,7 +2,7 @@
   "actorSpecification": 1,
   "name": "google-suite-mcp-server",
   "title": "Google Suite MCP Server (Apify Tools)",
-  "description": "Model Context Protocol (MCP) server providing LLM tools for Google Search (AI & SERP), Maps, Flights, Shopping, Trends, and Gemini Flash Lite powered by ilborso Apify Actors.",
+  "description": "Model Context Protocol (MCP) server providing LLM tools for Google Search (AI & SERP), Google News, Maps, Flights, Shopping, Trends, and Gemini Flash Lite powered by ilborso Apify Actors.",
   "version": "1.0.0",
   "meta": {
     "templateId": "python-empty"

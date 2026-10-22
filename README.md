@@ -5,7 +5,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An autonomous, production-ready **Model Context Protocol (MCP)** server built in Python that exposes as LLM Tools **EXCLUSIVELY** the 8 high-performance Google scraping, intelligence, and AI Actors developed by [ilborso](https://apify.com/ilborso) on the Apify platform.
+An autonomous, production-ready **Model Context Protocol (MCP)** server built in Python that exposes as LLM Tools **EXCLUSIVELY** the 9 high-performance Google scraping, intelligence, news, and AI Actors developed by [ilborso](https://apify.com/ilborso) on the Apify platform.
 
 ---
 
@@ -14,7 +14,7 @@ An autonomous, production-ready **Model Context Protocol (MCP)** server built in
 * **Dual Transport Architecture:** Supports standard **`stdio`** (default for Claude Desktop, Cursor, and CLI agents) and **`sse` / `streamable-http`** (for hosted containers and Apify Standby mode).
 * **Strict Low-Latency Default Configuration:** Tools feature conservative query and pagination defaults (e.g., `max_results: 5` or `10`, `max_page: 1`) and strictly disable heavy crawling (`include_html: False`, reviews/place_info disabled by default).
 * **Robust Timeout Management:**
-  * **45s timeout** on web scraping runs (`Google Search`, `Maps`, `Flights`, `Shopping`).
+  * **45s timeout** on web scraping runs (`Google Search`, `News`, `Maps`, `Flights`, `Shopping`).
   * **25s timeout** on LLM and Trends queries (`Gemini Flash Lite`, `Trending Now`, `Historical Trends`).
 * **Graceful Degradation (No MCP Crash):** If an Apify Actor execution takes longer than the allotted low-latency threshold, the server intercepts the timeout and returns a structured JSON payload with status `RUNNING` along with the direct Apify Run URL (`https://console.apify.com/view/runs/{run_id}`). This allows the LLM to inform the user instead of hanging or crashing the MCP connection.
 * **Intelligent Payload Trimming:** Prevents LLM context window saturation by stripping raw HTML, base64 images, tracking tokens, and deep debug fields, extracting only semantic fields (`title`, `price`, `rating`, `snippet`, `ai_overview`, `sources`, etc.).
@@ -22,12 +22,13 @@ An autonomous, production-ready **Model Context Protocol (MCP)** server built in
 
 ---
 
-## 🛠️ The 8 Exposed Tools
+## 🛠️ The 9 Exposed Tools
 
 | Category | Tool Name | Apify Actor | Description | Default Timeout |
 | :--- | :--- | :--- | :--- | :--- |
 | **Search** | `google_search_ai_mode` | [`ilborso/google-search-ai-mode`](https://apify.com/ilborso/google-search-ai-mode) | Synthesized AI answers, text overviews, and source citations from Google AI Mode. | 45s |
 | **Search** | `google_search_serp` | [`ilborso/google-search-fast-complete-result`](https://apify.com/ilborso/google-search-fast-complete-result) | Comprehensive Google SERP: organic rankings, Knowledge Graph, and People Also Ask. | 45s |
+| **News** | `google_news_content_crawler` | [`ilborso/ai-news-content-crawler`](https://apify.com/ilborso/ai-news-content-crawler) | Clean, full-text news articles and content from Google News without paywalls or subscriptions. | 45s |
 | **Intelligence** | `google_trending_now` | [`ilborso/google-trending-now`](https://apify.com/ilborso/google-trending-now) | Real-time trending searches with optional Gemini marketing intelligence enrichment. | 25s |
 | **Intelligence** | `google_trending_historical` | [`ilborso/google-trending-historical-data`](https://apify.com/ilborso/google-trending-historical-data) | Historical Google Trends: interest over time, regional interest, and related queries. | 25s |
 | **Intelligence** | `google_maps_search` | [`ilborso/google-maps-fast-scraper`](https://apify.com/ilborso/google-maps-fast-scraper) | Fast extraction of Google Maps local business data, ratings, addresses, and contacts. | 45s |
