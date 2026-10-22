@@ -6,7 +6,6 @@
 A high-performance **Model Context Protocol (MCP)** server connecting Claude Desktop, Cursor, Antigravity IDE, Windsurf, and any MCP-compatible AI agent directly to the suite of 9 specialized Google scraping, intelligence, news, and AI Actors powered by Apify.
 
 * **Instant GitHub Launch (`stdio` - Recommended):** Run directly from this public repository via `uvx` with zero cloning, zero manual venv management, and native low-latency stdio transport.
-* **Remote Cloud Standby (SSE / HTTP):** Connect 24/7 to the cloud-hosted Apify Standby container without keeping any local processes running.
 * **Zero Scraping Maintenance:** No proxy rotations, headless browsers, or anti-bot bypasses to manage.
 
 ---
@@ -74,20 +73,6 @@ The recommended connection method uses **`uvx`** to run the server over standard
   }
 }
 ```
-
-> [!TIP]
-> **Corporate Networks / Custom SSL:** If you are behind an enterprise proxy that inspects HTTPS traffic, include `--system-certs`:
-> `"args": ["--system-certs", "--from", "git+https://github.com/ilborso/google-suite-mcp-server.git", "google-suite-mcp-server"]`
-
-#### Method 2: Remote Cloud Standby (SSE / HTTP)
-
-If your client runs in a cloud environment or requires a remote URL endpoint, connect to the hosted 24/7 Apify Standby actor:
-
-```text
-https://ilborso--google-suite-mcp-server.apify.actor/sse?token=YOUR_APIFY_TOKEN
-```
-
-Replace `YOUR_APIFY_TOKEN` with the personal token copied in Step 1.
 
 ### Step 3: Start Prompting
 
@@ -189,86 +174,6 @@ Then configure your client to run the installed CLI command directly:
 }
 ```
 
----
-
-### Option B: Cloud Standby (Remote SSE)
-
-#### Claude Desktop
-Edit your configuration file:
-* **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-* **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "google-suite": {
-      "type": "url",
-      "url": "https://ilborso--google-suite-mcp-server.apify.actor/sse?token=YOUR_APIFY_TOKEN",
-      "timeout": 60000
-    }
-  }
-}
-```
-
-#### Cursor IDE
-```json
-{
-  "mcpServers": {
-    "google-suite": {
-      "url": "https://ilborso--google-suite-mcp-server.apify.actor/sse?token=YOUR_APIFY_TOKEN",
-      "requestTimeoutMs": 60000
-    }
-  }
-}
-```
-
-### Windsurf
-
-In Windsurf MCP Settings (`~/.codeium/windsurf/mcp_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "google-suite": {
-      "serverUrl": "https://ilborso--google-suite-mcp-server.apify.actor/sse?token=YOUR_APIFY_TOKEN"
-    }
-  }
-}
-```
-
-### Continue.dev
-
-In `~/.continue/config.json`:
-
-```json
-{
-  "experimental": {
-    "modelContextProtocolServers": [
-      {
-        "transport": {
-          "type": "sse",
-          "url": "https://ilborso--google-suite-mcp-server.apify.actor/sse?token=YOUR_APIFY_TOKEN",
-          "requestTimeoutMs": 60000
-        }
-      }
-    ]
-  }
-}
-```
-
-### Python Clients (LangChain / MCP SDK)
-
-```python
-from langchain_mcp_adapters.client import MultiServerMCPClient
-
-client = MultiServerMCPClient({
-    "google-suite": {
-        "transport": "sse",
-        "url": "https://ilborso--google-suite-mcp-server.apify.actor/sse?token=YOUR_APIFY_TOKEN",
-        "timeout": 60,
-    }
-})
-```
 
 ---
 
@@ -298,7 +203,6 @@ To ensure uninterrupted operation, configure your client's request timeout to **
 
 1. **Sequential Tool Invocations:** Execute tool calls sequentially rather than firing multiple concurrent requests. Concurrent calls can trigger client transport closure before all streams finish.
 2. **Use Conservative Pagination Defaults:** Start queries with focused parameter limits (e.g., `max_results: 3` to `5` or `days_back: 1` for news). Increase result counts only when extensive analysis is needed.
-3. **Standby Mode Cold-Start:** When the Actor is idle in Apify Standby mode, the first incoming request initializes the container (cold-start takes 3 to 5 seconds). Subsequent requests within active standby share the warm container and respond immediately.
 
 ---
 
@@ -309,8 +213,7 @@ To ensure uninterrupted operation, configure your client's request timeout to **
 | **"Invalid or expired MCP authentication"** | The MCP client timed out before the scraping response arrived. This is a client-side timeout issue, not an authentication failure. | Increase your MCP client timeout to 60,000 ms (60 seconds) or more. |
 | **"Interrupted network connection"** | The client closed the transport socket while waiting for the scraper. | Ensure client timeout is configured to 60s+ and avoid issuing parallel requests. |
 | **"Tool call returned no content"** | Overlapping requests or dropped SSE stream. | Structure prompts so the assistant awaits each tool result sequentially. |
-| **"AUTHENTICATION_REQUIRED"** | The `token` query parameter was omitted or invalid. | Verify that `?token=YOUR_APIFY_TOKEN` is appended to the Standby URL and your token is active. |
-| **"Server returned non-200" on first request** | Standby cold-start latency exceeded the client handshake deadline. | Increase client request timeout to allow container initialization. |
+| **"AUTHENTICATION_REQUIRED"** | The `APIFY_TOKEN` environment variable was not set or is invalid. | Verify that `APIFY_TOKEN` is correctly configured in your MCP client `env` block and that your token is active. |
 
 ---
 
