@@ -1,0 +1,32 @@
+{
+  "$schema": "https://apify.com/schemas/v1/output.ide.json",
+  "actorOutputSchemaVersion": 1,
+  "title": "Google Suite MCP Server Output",
+  "description": "Live MCP endpoints, default dataset items, and key-value store resources for Google Suite MCP Server.",
+  "properties": {
+    "mcpSseEndpoint": {
+      "type": "string",
+      "title": "MCP SSE Endpoint",
+      "description": "Server-Sent Events (SSE) URL to connect MCP clients (Claude Desktop, Cursor, Antigravity) when the Actor runs in Standby mode.",
+      "template": "{{links.containerRunUrl}}/sse"
+    },
+    "datasetResults": {
+      "type": "string",
+      "title": "Dataset Items (Trimmed Results)",
+      "description": "Direct API link to default dataset containing clean, structured items from Google Search, News, Maps, Flights, Shopping, and Trends.",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    },
+    "keyValueStore": {
+      "type": "string",
+      "title": "Key-Value Store",
+      "description": "API link to default key-value store containing Actor inputs, server state, and execution metadata.",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/keys"
+    },
+    "consoleRun": {
+      "type": "string",
+      "title": "Console Run Dashboard",
+      "description": "Apify Console run dashboard to inspect live server logs, container health, and resource metrics.",
+      "template": "{{links.consoleRunUrl}}"
+    }
+  }
+}

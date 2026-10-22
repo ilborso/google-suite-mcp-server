@@ -26,9 +26,9 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
-# Configurable timeout constants in seconds
-TIMEOUT_SCRAPING: int = 45
-TIMEOUT_AI_TRENDS: int = 25
+# Configurable timeout constants in seconds (increased to 50s)
+TIMEOUT_SCRAPING: int = 50
+TIMEOUT_AI_TRENDS: int = 50
 
 # Internal global token cache if set via Actor input or programmatic config
 _GLOBAL_APIFY_TOKEN: str | None = None
