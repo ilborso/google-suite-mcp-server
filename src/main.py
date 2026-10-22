@@ -64,12 +64,14 @@ async def main_async() -> None:
     parser = argparse.ArgumentParser(
         description="Google Suite MCP Server - Powered by ilborso Apify Actors"
     )
+    is_standby = bool(os.environ.get("ACTOR_STANDBY") or os.environ.get("ACTOR_WEB_SERVER_PORT"))
+    default_transport = "sse" if is_standby else "stdio"
     parser.add_argument(
         "--transport",
         type=str,
         choices=["stdio", "sse", "streamable-http"],
-        default=os.environ.get("MCP_TRANSPORT", "stdio"),
-        help="MCP transport protocol (default: stdio)",
+        default=os.environ.get("MCP_TRANSPORT", default_transport),
+        help=f"MCP transport protocol (default: {default_transport})",
     )
     parser.add_argument(
         "--host",

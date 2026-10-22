@@ -8,6 +8,7 @@
     "templateId": "python-empty"
   },
   "dockerfile": "./Dockerfile",
+  "usesStandbyMode": true,
   "input": "./input_schema.json",
   "output": "./output_schema.json",
   "categories": [
