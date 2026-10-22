@@ -183,20 +183,25 @@ def trim_google_search_serp(item: dict[str, Any]) -> dict[str, Any]:
 
 def trim_google_maps(item: dict[str, Any]) -> dict[str, Any]:
     """Trim output from ilborso/google-maps-fast-scraper."""
+    title = item.get("title") or item.get("name")
+    if not title:
+        return {}
+
+    gps = item.get("gps_coordinates") or {}
+    lat = gps.get("latitude") if isinstance(gps, dict) else (item.get("latitude") or item.get("lat"))
+    lng = gps.get("longitude") if isinstance(gps, dict) else (item.get("longitude") or item.get("lng"))
+
     return {
-        "title": item.get("title") or item.get("name"),
-        "category": item.get("category") or item.get("category_name"),
+        "title": title,
+        "category": item.get("category") or item.get("category_name") or item.get("type"),
         "address": item.get("address"),
         "phone": item.get("phone") or item.get("phone_number"),
         "website": item.get("website") or item.get("url"),
         "rating": item.get("rating") or item.get("total_score"),
-        "reviews_count": item.get("reviews_count") or item.get("reviews"),
-        "price_level": item.get("price_level"),
-        "location": {
-            "lat": item.get("latitude") or item.get("lat"),
-            "lng": item.get("longitude") or item.get("lng"),
-        } if (item.get("latitude") or item.get("lat")) else None,
-        "hours": item.get("hours") or item.get("popular_times"),
+        "reviews_count": item.get("reviews") or item.get("reviews_count"),
+        "price_level": item.get("price") or item.get("price_level"),
+        "location": {"lat": lat, "lng": lng} if (lat is not None and lng is not None) else None,
+        "hours": item.get("hours") or item.get("open_state") or item.get("operating_hours"),
         "ai_analysis": truncate_text(item.get("ai_analysis"), max_len=800) if item.get("ai_analysis") else None,
     }
 
@@ -470,7 +475,8 @@ async def run_actor_with_timeout(
             }
 
         dataset_client = client.dataset(dataset_id)
-        items_page = await dataset_client.list_items(limit=max_items)
+        fetch_limit = (max_items + 10) if max_items else 50
+        items_page = await dataset_client.list_items(limit=fetch_limit)
         raw_items = items_page.items
 
         trimmer = TRIMMER_MAP.get(actor_id, generic_trimmer)
@@ -478,9 +484,15 @@ async def run_actor_with_timeout(
 
         for item in raw_items:
             if isinstance(item, dict):
-                trimmed_items.append(trimmer(item))
+                trimmed = trimmer(item)
+                if trimmed:  # Ignore empty metadata records
+                    trimmed_items.append(trimmed)
+                    if max_items and len(trimmed_items) >= max_items:
+                        break
             else:
                 trimmed_items.append({"value": item})
+                if max_items and len(trimmed_items) >= max_items:
+                    break
 
         return {
             "status": "SUCCEEDED",

@@ -2,11 +2,12 @@
 
 [![Apify Actor](https://img.shields.io/badge/Apify-Actor-orange?logo=apify)](https://apify.com/ilborso/google-suite-mcp-server)
 [![MCP Version](https://img.shields.io/badge/MCP-Protocol%202.x-blue)](https://modelcontextprotocol.io)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A fully managed, cloud-hosted **Model Context Protocol (MCP)** server running on the Apify platform. It connects Claude Desktop, Cursor, Windsurf, Antigravity IDE, and any MCP-compatible AI agent directly to the suite of 9 specialized Google scraping, intelligence, news, and AI Actors.
+A high-performance **Model Context Protocol (MCP)** server connecting Claude Desktop, Cursor, Antigravity IDE, Windsurf, and any MCP-compatible AI agent directly to the suite of 9 specialized Google scraping, intelligence, news, and AI Actors powered by Apify.
 
-Zero local installation. Zero proxy or anti-bot configuration. Zero server maintenance. The server runs 24/7 in Apify Standby mode and connects to your AI assistant over standard Server-Sent Events (SSE) or Streamable HTTP.
+* **Instant GitHub Launch (`stdio` - Recommended):** Run directly from this public repository via `uvx` with zero cloning, zero manual venv management, and native low-latency stdio transport.
+* **Remote Cloud Standby (SSE / HTTP):** Connect 24/7 to the cloud-hosted Apify Standby container without keeping any local processes running.
+* **Zero Scraping Maintenance:** No proxy rotations, headless browsers, or anti-bot bypasses to manage.
 
 ---
 
@@ -42,7 +43,7 @@ Google Suite MCP Server provides an AI-native interface to Google's public data 
 
 ## How to Connect in 3 Steps
 
-Connecting your AI assistant to the cloud-hosted server takes less than two minutes.
+Connecting your AI assistant to the Google Suite MCP Server takes less than two minutes.
 
 ### Step 1: Obtain Your Apify API Token
 
@@ -52,7 +53,35 @@ Connecting your AI assistant to the cloud-hosted server takes less than two minu
 
 ### Step 2: Add the Server to Your MCP Client
 
-Add the hosted server entry to your client configuration file, using the Apify Standby URL format:
+#### Method 1: Local `stdio` from GitHub via `uvx` (Recommended ⭐)
+
+The recommended connection method uses **`uvx`** to run the server over standard input/output (`stdio`). `uvx` automatically fetches the code from GitHub, installs dependencies in an isolated cache, and runs the server at maximum speed with zero manual maintenance:
+
+```json
+{
+  "mcpServers": {
+    "google-suite": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/ilborso/google-suite-mcp-server.git",
+        "google-suite-mcp-server"
+      ],
+      "env": {
+        "APIFY_TOKEN": "YOUR_APIFY_TOKEN"
+      }
+    }
+  }
+}
+```
+
+> [!TIP]
+> **Corporate Networks / Custom SSL:** If you are behind an enterprise proxy that inspects HTTPS traffic, include `--system-certs`:
+> `"args": ["--system-certs", "--from", "git+https://github.com/ilborso/google-suite-mcp-server.git", "google-suite-mcp-server"]`
+
+#### Method 2: Remote Cloud Standby (SSE / HTTP)
+
+If your client runs in a cloud environment or requires a remote URL endpoint, connect to the hosted 24/7 Apify Standby actor:
 
 ```text
 https://ilborso--google-suite-mcp-server.apify.actor/sse?token=YOUR_APIFY_TOKEN
@@ -66,14 +95,105 @@ Open your AI assistant and prompt naturally:
 
 > "Use Google Search AI Mode to summarize the latest developments in generative robotics."
 
-Your assistant will query the remote MCP server, trigger the Actor on Apify, process the trimmed result, and formulate its response.
+Your assistant will query the MCP server, trigger the Actor on Apify, process the trimmed result, and formulate its response.
 
 ---
 
 ## Client Configuration Examples
 
-### Claude Desktop
+### Option A: Local `stdio` via `uvx` directly from GitHub (Recommended ⭐)
 
+No local git clone or manual environment setup required. `uvx` pulls the latest release from GitHub and executes in high-performance `stdio` mode.
+
+#### Claude Desktop & Antigravity IDE
+Edit your configuration file:
+* **Antigravity IDE:** `~/.gemini/config/mcp_config.json`
+* **Claude Desktop (Windows):** `%APPDATA%\Claude\claude_desktop_config.json`
+* **Claude Desktop (macOS):** `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "google-suite": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/ilborso/google-suite-mcp-server.git",
+        "google-suite-mcp-server"
+      ],
+      "env": {
+        "APIFY_TOKEN": "YOUR_APIFY_TOKEN"
+      }
+    }
+  }
+}
+```
+
+#### Cursor IDE
+Open **Cursor Settings** -> **Features** -> **MCP Servers** or edit your workspace `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "google-suite": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/ilborso/google-suite-mcp-server.git",
+        "google-suite-mcp-server"
+      ],
+      "env": {
+        "APIFY_TOKEN": "YOUR_APIFY_TOKEN"
+      }
+    }
+  }
+}
+```
+
+#### Alternative: One-Time `pip` Installation from GitHub
+If you prefer standard Python `pip` without `uv`:
+```bash
+pip install git+https://github.com/ilborso/google-suite-mcp-server.git
+```
+Then configure your client to run the installed CLI command directly:
+```json
+{
+  "mcpServers": {
+    "google-suite": {
+      "command": "google-suite-mcp-server",
+      "args": ["--transport", "stdio"],
+      "env": {
+        "APIFY_TOKEN": "YOUR_APIFY_TOKEN"
+      }
+    }
+  }
+}
+```
+
+#### Alternative: Docker Container from GitHub
+```json
+{
+  "mcpServers": {
+    "google-suite": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "APIFY_TOKEN=YOUR_APIFY_TOKEN",
+        "-e", "MCP_TRANSPORT=stdio",
+        "ghcr.io/ilborso/google-suite-mcp-server:latest"
+      ]
+    }
+  }
+}
+```
+
+---
+
+### Option B: Cloud Standby (Remote SSE)
+
+#### Claude Desktop
 Edit your configuration file:
 * **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 * **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
@@ -90,11 +210,7 @@ Edit your configuration file:
 }
 ```
 
-### Cursor IDE
-
-1. Open **Cursor Settings** -> **Features** -> **MCP Servers**.
-2. Click **Add New MCP Server** (or edit your workspace `mcp.json`):
-
+#### Cursor IDE
 ```json
 {
   "mcpServers": {

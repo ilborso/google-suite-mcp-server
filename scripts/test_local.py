@@ -10,6 +10,12 @@ import time
 # Ensure workspace root is in python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+# Ensure UTF-8 output encoding across Windows consoles
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 from src.main import create_mcp_server
 from src.utils.apify_runner import get_apify_token
 
