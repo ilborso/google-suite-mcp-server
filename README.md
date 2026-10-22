@@ -9,7 +9,7 @@ An autonomous, production-ready **Model Context Protocol (MCP)** server built in
 
 ---
 
-## 🎯 Architecture & Key Features
+## Architecture & Key Features
 
 * **Dual Transport Architecture:** Supports standard **`stdio`** (default for Claude Desktop, Cursor, and CLI agents) and **`sse` / `streamable-http`** (for hosted containers and Apify Standby mode).
 * **Strict Low-Latency Default Configuration:** Tools feature conservative query and pagination defaults (e.g., `max_results: 5` or `10`, `max_page: 1`) and strictly disable heavy crawling (`include_html: False`, reviews/place_info disabled by default).
@@ -22,7 +22,7 @@ An autonomous, production-ready **Model Context Protocol (MCP)** server built in
 
 ---
 
-## 🛠️ The 9 Exposed Tools
+## The 9 Exposed Tools
 
 | Category | Tool Name | Apify Actor | Description | Default Timeout |
 | :--- | :--- | :--- | :--- | :--- |
@@ -38,7 +38,7 @@ An autonomous, production-ready **Model Context Protocol (MCP)** server built in
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 ├── .actor/
@@ -49,7 +49,7 @@ An autonomous, production-ready **Model Context Protocol (MCP)** server built in
 │   ├── main.py                 # FastMCP server initialization & stdio/SSE runner
 │   ├── tools/
 │   │   ├── __init__.py         # Modular tool aggregator
-│   │   ├── search_tools.py      # AI mode & SERP scraping tools
+│   │   ├── search_tools.py      # AI mode, SERP & Google News scraping tools
 │   │   ├── intelligence_tools.py # Trending Now, Historical Trends, & Maps
 │   │   ├── commerce_tools.py    # Flights & Shopping search tools
 │   │   └── ai_tools.py          # Gemini Flash Lite tool
@@ -63,7 +63,7 @@ An autonomous, production-ready **Model Context Protocol (MCP)** server built in
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Prerequisites
 
@@ -101,7 +101,7 @@ python -m src.main
 
 ---
 
-## 🔌 Client Integrations
+## Client Integrations
 
 ### Claude Desktop Integration
 
@@ -162,7 +162,7 @@ In Cursor:
 
 ---
 
-## ☁️ Deployment on Apify Platform
+## Deployment on Apify Platform
 
 You can deploy and run this server directly on the Apify platform:
 
@@ -191,7 +191,7 @@ The MCP SSE endpoint will be available at `http://0.0.0.0:8080/sse`.
 
 ---
 
-## 🛡️ Error Handling & Graceful Degradation Details
+## Error Handling & Graceful Degradation Details
 
 When an Apify Actor call takes longer than the configured timeout:
 
@@ -217,6 +217,6 @@ If the authentication token is missing:
 
 ---
 
-## 📜 License
+## License
 
 Distributed under the MIT License. Developed with pride by [ilborso](https://apify.com/ilborso).
